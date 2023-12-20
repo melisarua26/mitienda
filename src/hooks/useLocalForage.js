@@ -72,12 +72,12 @@ export async function updateContact(id, updates) {
   return contact;
 }
 
-export async function useLocalForage(
-  action,
-  contacts = undefined,
-  update = undefined,
-  id = undefined
-) {
+export async function useLocalForage({
+                                       action,
+                                       contacts = undefined,
+                                       update = undefined,
+                                       id = undefined
+                                     }) {
   if (action === "set" && contacts !== undefined) {
     return localforage.setItem("contacts", contacts);
   }

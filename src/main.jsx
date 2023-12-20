@@ -7,7 +7,7 @@ import Contact, {
   loader as contactLoader,
   action as contactAction,
 } from "./components/contact";
-import Root, { loader as rootLoader, action as rootAction } from "./App";
+import { loader as rootLoader, action as rootAction } from "./App";
 
 import EditContact, { action as editAction } from "./components/edit";
 
