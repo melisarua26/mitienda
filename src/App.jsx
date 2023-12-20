@@ -1,35 +1,107 @@
-import { useState, useEffect } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
-import Contact from './routes/contact'
+import { useEffect } from "react";
+import "./App.css";
+import {
+  Outlet,
+  NavLink,
+  useLoaderData,
+  Form,
+  redirect,
+  useNavigation,
+  useSubmit,
+} from "react-router-dom";
+import { getContacts } from "./contacts";
+import { useLocalForage } from "./hooks/useLocalForage";
+
+export async function action() {
+  const contact = await useLocalForage({
+    action: "create",
+  });
+  return redirect(`/contacts/${contact.id}/edit`);
+}
+
+export async function loader({ request }) {
+  const url = new URL(request.url);
+  const q = url.searchParams.get("q");
+  const contacts = await getContacts(q);
+  return { contacts, q };
+}
 
 function App() {
-  const [count, setCount] = useState(0)
+  const { contacts, q } = useLoaderData();
+  const navigation = useNavigation();
+  const submit = useSubmit();
+
+  const searching =
+    navigation.location &&
+    new URLSearchParams(navigation.location.search).has("q");
+
+  useEffect(() => {
+    document.getElementById("q").value = q;
+  }, [q]);
 
   return (
     <>
-      <div>
-        <a href="https://vitejs.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
+      <div id="sidebar">
+        <h1>React Router Contacts</h1>
+        <div>
+          <Form id="search-form" role="search">
+            <input
+              id="q"
+              className={searching ? "loading" : ""}
+              aria-label="Search contacts"
+              placeholder="Search"
+              type="search"
+              name="q"
+              defaultValue={q}
+              onChange={(event) => {
+                submit(event.currentTarget.form);
+              }}
+            />
+            <div id="search-spinner" aria-hidden hidden={!searching} />
+            <div className="sr-only" aria-live="polite"></div>
+          </Form>
+          <Form method="post">
+            <button type="submit">New</button>
+          </Form>
+        </div>
+        <nav>
+          {contacts.length ? (
+            <ul>
+              {contacts.map((contact) => (
+                <li key={contact.id}>
+                  <NavLink
+                    to={`contacts/${contact.id}`}
+                    className={({ isActive, isPending }) =>
+                      isActive ? "active" : isPending ? "pending" : ""
+                    }
+                  >
+                    {contact.first || contact.last ? (
+                      <>
+                        {contact.first} {contact.last}
+                      </>
+                    ) : (
+                      <i>No Name</i>
+                    )}{" "}
+                    {contact.favorite && <span>★</span>}
+                  </NavLink>
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <p>
+              <i>No contacts</i>
+            </p>
+          )}
+        </nav>
       </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.jsx</code>
-        </p>
+      <div
+        id="detail"
+        className={navigation.state === "loading" ? "loading" : ""}
+      >
+        <Outlet />
       </div>
-      <p className="read-the-docs">
-      </p>
     </>
-  )
+  );
 }
 
-export default App
+export default App;

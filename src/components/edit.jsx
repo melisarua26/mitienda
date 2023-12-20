@@ -1,10 +1,14 @@
 import { Form, useLoaderData, redirect, useNavigate,} from "react-router-dom";
-import { updateContact } from "../contacts";
+import { useLocalForage } from "../hooks/useLocalForage";
 
 export async function action({ request, params }) {
     const formData = await request.formData();
     const updates = Object.fromEntries(formData);
-    await updateContact(params.contactId, updates);
+    await useLocalForage({
+      action:'update',
+      id: params.contactId,
+      update: updates
+    });
     return redirect(`/contacts/${params.contactId}`);
   }
 
