@@ -42,7 +42,7 @@ function App() {
   return (
     <>
       <div id="sidebar">
-        <h1>React Router Contacts</h1>
+        <h1>Find here your recipes</h1>
         <div>
           <Form id="search-form" role="search">
             <input
@@ -80,7 +80,7 @@ function App() {
                         {contact.first} {contact.last}
                       </>
                     ) : (
-                      <i>No Name</i>
+                      <i>Empty</i>
                     )}{" "}
                     {contact.favorite && <span>★</span>}
                   </NavLink>
